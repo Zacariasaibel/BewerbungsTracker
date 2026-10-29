@@ -1,5 +1,7 @@
 # Modelo Application
 
+El modelo forma parte del MVP local implementado y comprobado. La verificación específica de este documento corresponde al hito del modelo; las comprobaciones posteriores de API y frontend, con su atribución al usuario o al agente, están en [test-checklist.md](test-checklist.md).
+
 `backend/applications/models.py` define una candidatura. Se registra en Django Admin con el nombre alemán «Bewerbung» y se representa como «empresa – puesto». Los datos utilizados en las pruebas son ficticios.
 
 | Campo | Tipo | Reglas |

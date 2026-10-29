@@ -1,0 +1,16 @@
+<a class="back-link" routerLink="/bewerbungen">← Alle Bewerbungen</a>
+@if (loading()) {
+  <div class="panel state" role="status">Bewerbung wird geladen …</div>
+} @else if (missing()) {
+  <div class="panel state" role="alert"><h1>Bewerbung nicht gefunden</h1><p>Sie wurde möglicherweise bereits gelöscht.</p><a class="button primary" routerLink="/bewerbungen">Zu den Bewerbungen</a></div>
+} @else if (error()) {
+  <div class="panel state" role="alert"><h1>Laden nicht möglich</h1><p>{{ error() }}</p><button class="button primary" (click)="load()">Erneut versuchen</button></div>
+} @else if (application(); as item) {
+  <section class="page-heading"><div><p class="eyebrow">IHRE CHANCE IM DETAIL</p><h1>{{ item.company }}</h1><p class="muted">{{ item.position }}</p></div><a class="button primary" [class.disabled-link]="deleting()" [attr.aria-disabled]="deleting()" [routerLink]="['/bewerbungen', item.id, 'bearbeiten']">Bewerbung bearbeiten</a></section>
+  <section class="panel detail-panel"><div class="panel-heading"><h2>Bewerbungsdetails</h2><span class="badge" [attr.data-status]="item.status">{{ labels[item.status] }}</span></div>
+    <dl class="detail-grid"><div><dt>Unternehmen</dt><dd>{{ item.company }}</dd></div><div><dt>Position</dt><dd>{{ item.position }}</dd></div><div><dt>Standort</dt><dd>{{ item.location || 'Nicht angegeben' }}</dd></div><div><dt>Beworben am</dt><dd><time [attr.datetime]="item.applied_on">{{ date(item.applied_on) }}</time></dd></div><div><dt>Nachfassen am</dt><dd>{{ date(item.next_action_on) }}</dd></div><div><dt>Stellenanzeige</dt><dd>@if (safeJobUrl(item.job_url); as url) { <a [href]="url" target="_blank" rel="noopener noreferrer">Stellenanzeige öffnen ↗<span class="sr-only"> (neuer Tab)</span></a> } @else { Nicht angegeben }</dd></div></dl>
+    <div class="notes-section"><h3>Notizen</h3><p class="notes">{{ item.notes || 'Noch keine Notizen vorhanden.' }}</p></div>
+  </section>
+  <section class="panel danger-panel"><div><h2>Bewerbung löschen</h2><p class="muted">Entfernt diese Bewerbung dauerhaft aus Ihrem Arbeitsbereich.</p></div><button class="button danger" (click)="remove()" [disabled]="deleting()">{{ deleting() ? 'Wird gelöscht …' : 'Bewerbung löschen' }}</button></section>
+  @if (deleteError()) { <div class="error-box" role="alert">{{ deleteError() }}</div> }
+}

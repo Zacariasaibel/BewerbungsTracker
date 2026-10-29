@@ -101,7 +101,7 @@ Un identificador inexistente devuelve **404**, con un objeto que contiene `detai
 
 Esta configuración es exclusivamente para desarrollo local con datos ficticios. **Antes de publicar hay que restringir la escritura**, definir autenticación y autorización y revisar la configuración de despliegue. No publicar este servidor con acceso anónimo de escritura.
 
-No se añadieron dependencias, frontend ni historial.
+El hito inicial de API no añadió dependencias, frontend ni historial. El frontend del bloque posterior usa esta API; la búsqueda y el filtro se realizan en el cliente sin cambiar estas rutas. Véase `docs/development.md`.
 
 ## Recorrido de una petición
 
@@ -123,4 +123,6 @@ Set-Location backend
 ..\.venv\Scripts\python.exe manage.py migrate --check
 ```
 
-Resultado de este hito: 16 pruebas correctas (5 del modelo y 11 de API), comprobación de Django sin problemas, sin cambios de modelo pendientes de generar y sin migraciones pendientes de aplicar. Las pruebas usan una base temporal y no añaden datos a SQLite de desarrollo. No se creó ningún commit.
+Resultado del hito inicial de API: 16 pruebas correctas (5 del modelo y 11 de API), comprobación de Django sin problemas, sin cambios de modelo pendientes de generar y sin migraciones pendientes de aplicar. Las pruebas usan una base temporal y no añaden datos a SQLite de desarrollo. No se creó ningún commit en ese hito.
+
+El MVP local completo ya está implementado y comprobado: el agente ejecutó posteriormente 19 pruebas del backend y el usuario confirmó el build, las doce pruebas Angular y el recorrido en navegador de escritorio y móvil. Véase [test-checklist.md](test-checklist.md) para distinguir resultados y responsables.

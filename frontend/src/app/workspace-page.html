@@ -1,0 +1,77 @@
+<section class="page-heading">
+  <div><p class="eyebrow">IHR BEWERBUNGSALLTAG, GUT ORGANISIERT</p>
+    <h1>{{ mode() === 'overview' ? 'Alles im Blick.' : mode() === 'list' ? 'Ihre Bewerbungen' : 'Zeit zum Nachfassen' }}</h1>
+    <p class="muted">{{ mode() === 'overview' ? 'Jede Bewerbung ist ein Schritt nach vorn. Behalten Sie den Überblick.' : mode() === 'list' ? 'Von der ersten Bewerbung bis zur Zusage – alle Chancen an einem Ort.' : 'Offene Bewerbungen mit einem fälligen nächsten Schritt.' }}</p>
+  </div>
+  <a class="button primary" routerLink="/bewerbungen/neu"><span aria-hidden="true">＋</span> Neue Bewerbung</a>
+</section>
+
+@if (store.loading()) {
+  <div class="panel state" role="status"><span class="spinner" aria-hidden="true"></span><h2>Bewerbungen werden geladen …</h2><p class="muted">Einen kleinen Moment bitte.</p></div>
+} @else if (store.error()) {
+  <div class="panel state" role="alert"><h2>Verbindung unterbrochen</h2><p>{{ store.error() }}</p><button class="button primary" (click)="reload()">Erneut versuchen</button></div>
+} @else {
+  @if (mode() === 'overview') {
+    <div class="stats">
+      <article class="stat"><span class="stat-label">Bewerbungen gesamt</span><strong>{{ store.items().length }}</strong><small>Alle erfassten Bewerbungen</small></article>
+      <article class="stat"><span class="stat-label">Offene Chancen</span><strong>{{ openCount() }}</strong><small>Beworben und Vorstellungsgespräch</small></article>
+      <article class="stat"><span class="stat-label">Im Gespräch</span><strong>{{ interviewCount() }}</strong><small>Status Vorstellungsgespräch</small></article>
+      <article class="stat accent-stat"><span class="stat-label">Nachfassen fällig</span><strong>{{ due().length }}</strong><small>Heute oder früher, nur offene Chancen</small></article>
+    </div>
+    <div class="overview-grid">
+      <section class="panel">
+        <div class="panel-heading"><div><p class="eyebrow">DRANBLEIBEN LOHNT SICH</p><h2>Die nächsten Schritte</h2></div><a routerLink="/nachfassen">Fällige ansehen →</a></div>
+        <p class="section-description">Die nächsten fünf geplanten Schritte offener Bewerbungen – überfällige zuerst.</p>
+        @for (item of upcoming(); track item.id) {
+          <a class="followup-row" [routerLink]="['/bewerbungen', item.id]">
+            <span class="company-mark" aria-hidden="true">{{ item.company.charAt(0) }}</span>
+            <span class="row-main"><strong>{{ item.company }}</strong><span>{{ item.position }}</span></span>
+            <span class="date-label" [class.overdue]="item.next_action_on! < today()"><time [attr.datetime]="item.next_action_on">{{ date(item.next_action_on) }}</time><small>{{ item.next_action_on! < today() ? 'Überfällig' : item.next_action_on === today() ? 'Heute' : 'Geplant' }}</small></span>
+          </a>
+        } @empty {
+          <div class="empty-inline"><h3>Freiraum für den nächsten Schritt</h3><p class="muted">Für offene Bewerbungen sind noch keine nächsten Schritte geplant.</p><a routerLink="/bewerbungen">Bewerbungen ansehen →</a></div>
+        }
+      </section>
+      <section class="panel status-panel"><p class="eyebrow">IHR FORTSCHRITT</p><h2>So stehen Ihre Chancen</h2><p class="muted">Alle Bewerbungen nach aktuellem Status.</p>
+        @for (entry of statuses; track entry[0]) {
+          <div class="status-summary"><span class="badge" [attr.data-status]="entry[0]">{{ entry[1] }}</span><strong>{{ countStatus(entry[0]) }}</strong></div>
+        }
+        <div class="tip"><strong>Ein kleiner Schritt reicht.</strong><p>Planen Sie nach jeder Bewerbung einen Termin zum Nachfassen.</p></div>
+      </section>
+    </div>
+    <section class="panel recent-panel"><div class="panel-heading"><h2>Zuletzt beworben</h2><a routerLink="/bewerbungen">Alle ansehen →</a></div>
+      @for (item of store.items().slice(0, 4); track item.id) {
+        <a class="followup-row" [routerLink]="['/bewerbungen', item.id]"><span class="row-main"><strong>{{ item.company }}</strong><span>{{ item.position }} · {{ date(item.applied_on) }}</span></span><span class="badge" [attr.data-status]="item.status">{{ labels[item.status] }}</span></a>
+      } @empty { <div class="empty-inline"><h3>Ihre erste Chance wartet</h3><p class="muted">Legen Sie Ihre erste Bewerbung an. Ihre Übersicht füllt sich automatisch.</p><a class="button primary" routerLink="/bewerbungen/neu">Neue Bewerbung</a></div> }
+    </section>
+  } @else {
+    @if (mode() === 'list') {
+      <section class="panel filters" aria-label="Bewerbungen filtern">
+        <div class="search-field"><label for="company-search">Unternehmen suchen</label><input id="company-search" type="search" placeholder="Name des Unternehmens …" [ngModel]="query()" (ngModelChange)="query.set($event)"></div>
+        <div><label for="status-filter">Status</label><select id="status-filter" [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)"><option value="">Alle Status</option>@for (entry of statuses; track entry[0]) { <option [value]="entry[0]">{{ entry[1] }}</option> }</select></div>
+        <button class="button secondary" (click)="resetFilters()" [disabled]="!query() && !selectedStatus()">Zurücksetzen</button>
+      </section>
+    } @else {
+      <div class="notice"><strong>Heute: {{ date(today()) }}</strong><p>Hier stehen Termine von heute und früher. Bewerbungen mit Absage oder Zusage werden nicht angezeigt. Die ältesten Termine stehen oben.</p></div>
+    }
+    <section class="panel table-panel">
+      <div class="panel-heading"><h2>{{ mode() === 'list' ? 'Bewerbungen' : 'Fällige Schritte' }} <span class="count">{{ visible().length }}</span></h2><button class="text-button" (click)="reload()">Aktualisieren ↻</button></div>
+      <p class="sr-only" aria-live="polite">{{ visible().length }} Ergebnisse</p>
+      @if (visible().length) {
+        <table><caption class="sr-only">{{ mode() === 'list' ? 'Ihre Bewerbungen' : 'Heute fällige und überfällige Bewerbungen' }}</caption><thead><tr><th scope="col">Unternehmen / Position</th><th scope="col">Status</th><th scope="col">Beworben am</th><th scope="col">Nachfassen</th><th scope="col"><span class="sr-only">Aktion</span></th></tr></thead><tbody>
+          @for (item of visible(); track item.id) {
+            <tr><td data-label="Unternehmen"><a class="company-link" [routerLink]="['/bewerbungen', item.id]">{{ item.company }}</a><span class="cell-secondary">{{ item.position }}</span><span class="cell-secondary">{{ item.location || 'Kein Standort angegeben' }}</span></td><td data-label="Status"><span class="badge" [attr.data-status]="item.status">{{ labels[item.status] }}</span></td><td data-label="Beworben am"><time [attr.datetime]="item.applied_on">{{ date(item.applied_on) }}</time></td><td data-label="Nachfassen"><span [class.overdue]="item.next_action_on && item.next_action_on < today() && (item.status === 'applied' || item.status === 'interview')">{{ date(item.next_action_on) }}</span></td><td class="action-cell"><a [routerLink]="['/bewerbungen', item.id]" [attr.aria-label]="'Details zu ' + item.company">Details →</a></td></tr>
+          }
+        </tbody></table>
+      } @else {
+        <div class="state">
+          <span class="empty-symbol" aria-hidden="true">{{ mode() === 'followups' ? '✓' : '▤' }}</span>
+          <h3>{{ mode() === 'followups' ? 'Alles auf dem aktuellen Stand' : store.items().length ? 'Keine passenden Bewerbungen' : 'Noch keine Bewerbungen' }}</h3>
+          <p class="muted">{{ mode() === 'followups' ? 'Heute sind keine Schritte für offene Bewerbungen fällig.' : store.items().length ? 'Versuchen Sie einen anderen Suchbegriff oder Status.' : 'Starten Sie mit Ihrer ersten Bewerbung.' }}</p>
+          @if (mode() === 'list' && store.items().length) { <button class="button secondary" (click)="resetFilters()">Filter zurücksetzen</button> }
+          @if (!store.items().length) { <a class="button primary" routerLink="/bewerbungen/neu">Neue Bewerbung</a> }
+        </div>
+      }
+    </section>
+  }
+}

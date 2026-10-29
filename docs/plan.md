@@ -11,9 +11,9 @@ Crear un gestor de candidaturas para un portfolio de prácticas FIAE, aprendiend
 - Base de datos: SQLite.
 - Control de versiones: Git.
 
-Angular queda pendiente. Para el backend se ha elegido Django 5.2 LTS y una versión estable de Django REST Framework compatible con Python 3.13. Las versiones exactas se fijarán después de completar su instalación; la descarga está bloqueada por el proxy del entorno del agente.
+El MVP local está implementado y comprobado. El backend usa Django 5.2.18 y Django REST Framework 3.18.3 en `.venv`; el frontend usa Angular CLI 21. El usuario confirmó la instalación, el build, las doce pruebas Angular y el flujo en navegador, con revisión de escritorio y móvil. El agente ejecutó las verificaciones del backend y de la lógica TypeScript. Véanse `docs/development.md` y `docs/test-checklist.md`.
 
-La Product Inventory API está en otro ordenador y no se ha revisado. Prepararemos un backend nuevo para BewerbungsTracker, sin asumir ni reutilizar su estructura.
+La Product Inventory API está en otro ordenador y no se ha revisado. Se creó un backend independiente para BewerbungsTracker, sin asumir ni reutilizar su estructura.
 
 ## MVP
 
@@ -30,29 +30,30 @@ Cada candidatura tendrá estos campos:
 | Position | position |
 | Standort | location |
 | Status | status |
-| Bewerbungsdatum | application_date |
-| Link | link |
+| Bewerbungsdatum | applied_on |
+| Link | job_url |
 | Notizen | notes |
-| Nachfassdatum | follow_up_date |
+| Nachfassdatum | next_action_on |
 
-Estados visibles: **Beworben**, **Vorstellungsgespräch**, **Absage** y **Zusage**. Los identificadores internos se definirán en inglés al diseñar el modelo.
+Estados visibles: **Beworben**, **Vorstellungsgespräch**, **Absage** y **Zusage**. Valores internos: `applied`, `interview`, `rejected` y `accepted`.
 
-Antes de implementar el resumen y los seguimientos, se concretarán sus reglas: qué cifras mostrar, cómo tratar candidaturas cerradas y qué fechas se consideran pendientes.
+Las reglas del resumen y los seguimientos están definidas en `docs/development.md`: solo las candidaturas abiertas con fecha de seguimiento de hoy o anterior cuentan como pendientes.
 
 ## Fases e hitos
 
 1. **Inspección y planificación (completado).** Revisar la carpeta, detectar las herramientas y documentar el alcance y el entorno.
-2. **Preparación del proyecto.** Acordar estructura y versiones compatibles, preparar Git y los archivos de configuración e instalar las dependencias necesarias.
-3. **Backend y datos.** Primero preparar un backend nuevo con `backend/config`, la app `applications`, SQLite y las migraciones iniciales. Después, en otro hito, diseñar el modelo, las validaciones y la API REST; preparar datos ficticios y verificar CRUD, búsqueda y filtro.
-4. **Frontend.** Crear la interfaz en alemán con listado, formulario, edición, eliminación, búsqueda y filtro. Conectarla con la API y mostrar estados de carga y errores.
-5. **Resumen y seguimientos.** Implementar las reglas acordadas y comprobarlas con datos ficticios.
-6. **Revisión y portfolio.** Verificar los flujos principales, mejorar accesibilidad y presentación, y documentar instalación, uso y decisiones técnicas.
+2. **Preparación del proyecto (completado).** Estructura, Git, configuración y dependencias preparados.
+3. **Backend y datos (completado).** Modelo, validación, API REST, SQLite, migraciones y demo repetible implementados y probados.
+4. **Frontend (completado).** Interfaz alemana conectada a la API, CRUD, búsqueda y filtro, estados de carga y errores; build y doce pruebas confirmados por el usuario.
+5. **Resumen y seguimientos (completado para el MVP local).** Reglas implementadas, lógica probada y vistas incluidas en la revisión del frontend.
+6. **Revisión del MVP local (completado).** Flujo principal y diseño de escritorio y móvil confirmados por el usuario; documentación actualizada. Historial, despliegue y rediseño del portfolio quedan para bloques posteriores.
 
 En cada hito se explicará en español sencillo qué se hace, por qué y cómo se comprueba. El trabajo avanzará por hitos según las instrucciones del usuario.
 
 ## Límites del hito actual
 
-- Preparar únicamente la base del backend; el modelo de candidatura y los endpoints vendrán después.
-- Instalar dependencias únicamente en `.venv`, sin actualizar Python ni las herramientas globales.
+- Entregar el MVP local con frontend, API y demo; historial, despliegue y rediseño del portfolio quedan para otros bloques.
+- Mantener las dependencias del backend en `.venv` y las del frontend en `frontend/node_modules`, sin actualizar las herramientas globales.
+- Usar solo datos ficticios en la demo local, sin autenticación; restringir la escritura y preparar producción antes de publicar.
 - El usuario hará el commit desde su terminal PowerShell.
 - No revisar ni asumir la estructura de la Product Inventory API ubicada en otro ordenador.

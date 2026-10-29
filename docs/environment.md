@@ -1,142 +1,74 @@
-# Entorno detectado
+﻿# Entorno del proyecto
 
-Fecha de revisión: 29 de octubre de 2026.
+## Estado actual
 
-## Carpeta revisada
+El MVP local está implementado y comprobado. El usuario confirmó desde PowerShell la instalación npm, el build Angular y las doce pruebas Angular. También confirmó en navegador crear → recargar → buscar y filtrar → editar → eliminar, además de la revisión de escritorio y móvil.
 
-Ruta: `C:\Users\UserS2025\Desktop\BewerbungsTracker`.
+El agente ejecutó anteriormente las 19 pruebas del backend, cinco pruebas de lógica TypeScript y un recorrido HTTP real con filtrado TypeScript. La atribución y los resultados están en [test-checklist.md](test-checklist.md). En este paso se actualizó únicamente documentación y se comprobó la preparación de Git, sin repetir las pruebas ni modificar código.
 
-La carpeta estaba vacía al comenzar, incluidos los elementos ocultos. No se encontraron archivos existentes, instrucciones locales `AGENTS.md`, aplicaciones ni configuración del proyecto. No se ha sobrescrito ningún archivo.
+## Herramientas detectadas
 
-La comprobación con `git rev-parse --is-inside-work-tree` confirmó que la carpeta no pertenece a un repositorio Git. No se ha inicializado uno.
-
-## Herramientas
-
-| Herramienta | Versión detectada | Comprobación |
+| Herramienta | Versión registrada | Comprobación original |
 | --- | --- | --- |
-| Python | 3.13.3 | `python --version` |
-| Lanzador de Python (`py`) | Ejecuta Python 3.13.3 | `py --version` |
-| Node.js | v24.11.1 | `node --version` |
+| Python | 3.13.3 | `python --version` y Python de `.venv` |
+| Lanzador de Python | Ejecuta Python 3.13.3 | `py --version` |
+| Node.js | 24.11.1 | `node --version` |
 | npm | 11.6.2 | `npm.cmd --version` |
 | Git | 2.52.0.windows.1 | `git --version` |
+| Angular CLI global | 21.0.1 | `ng.cmd version` |
+| SQLite incluido en Python | 3.49.1 | `sqlite3.sqlite_version` |
 
-Rutas detectadas:
+Son las versiones registradas durante la preparación, no una nueva comprobación de versiones en este paso. Las herramientas globales no se actualizaron. Las versiones resueltas del frontend están en `frontend/package-lock.json`.
 
-- Python: `C:\Users\UserS2025\AppData\Local\Programs\Python\python.exe`.
-- Lanzador de Python: `C:\Users\UserS2025\AppData\Local\Programs\Python\Launcher\py.exe`.
-- Node.js: `C:\Users\UserS2025\Documents\node-v24.11.1-win-x64\node.exe`.
-- npm resuelto por PowerShell: `C:\Users\UserS2025\Documents\node-v24.11.1-win-x64\npm.ps1`.
-- Git: `C:\Users\UserS2025\AppData\Local\Programs\Git\cmd\git.exe`.
+Dependencias exactas registradas del backend en `backend/requirements.txt`:
 
-## Problemas encontrados
+- Django 5.2.18.
+- Django REST Framework 3.18.3.
+- asgiref 3.13.0.
+- sqlparse 0.6.0.
+- tzdata 2026.6.
 
-1. **PowerShell bloquea `npm --version`.** El comando resuelve a `npm.ps1`, pero la política de ejecución impide ejecutar ese script. La alternativa `npm.cmd --version` funciona y permite consultar la versión sin cambiar políticas ni permisos. En este entorno se puede utilizar `npm.cmd` en los siguientes hitos.
-2. **Git aún no está inicializado.** Es el estado inicial de la carpeta, no un fallo de la instalación de Git. Su preparación queda para el siguiente hito.
+Se consultaron las fuentes oficiales de [Django 5.2](https://docs.djangoproject.com/en/5.2/releases/5.2/), [DRF](https://www.django-rest-framework.org/) y [Angular](https://angular.dev/reference/versions) para la compatibilidad. Django y DRF recomiendan el último parche de la serie de Python; se conservó Python 3.13.3 y se verificó localmente la combinación instalada.
 
-## Alcance de la comprobación
+## Estructura y configuración
 
-Se consultaron las versiones de las herramientas solicitadas. No se instalaron ni actualizaron herramientas; tampoco se modificaron políticas de PowerShell ni se generó la aplicación.
+- Raíz del proyecto: `C:\Users\UserS2025\Desktop\BewerbungsTracker`; Git está inicializado.
+- `.venv/`: entorno Python aislado, excluido de Git. Usar directamente su intérprete evita activar scripts de PowerShell.
+- `backend/manage.py`: comandos administrativos de Django.
+- `backend/config/`: configuración y rutas principales; mantiene Django Admin e incluye `/api/`.
+- `backend/applications/`: modelo, serializer, ViewSet, rutas, pruebas y comando `seed_demo`.
+- `backend/applications/migrations/0001_initial.py`: migración del modelo Application, aplicada y versionable.
+- `backend/db.sqlite3`: base local excluida de Git, con diez candidaturas ficticias de demo cargadas por el agente. Repetir la demo no creó duplicados.
+- `frontend/`: aplicación Angular standalone, TypeScript estricto, routing, CSS y proxy de desarrollo a Django; sin SSR ni otro repositorio Git.
+- `frontend/package-lock.json`: resolución real de dependencias generada tras la instalación del usuario; debe versionarse.
 
-No se comprobó la instalación de Angular, TypeScript, Django o Django REST Framework, ni la compatibilidad entre sus futuras versiones. Esto se revisará antes de preparar el proyecto. SQLite se mantiene como base de datos prevista; no se verificó su versión en este hito.
+Django registra `rest_framework` y `applications.apps.ApplicationsConfig`, usa SQLite, `LANGUAGE_CODE = "de"`, `TIME_ZONE = "Europe/Berlin"` y `USE_TZ = True`.
 
-La Product Inventory API está en otro ordenador, no se ha revisado y no se asume ninguna estructura ni configuración suya. El backend de BewerbungsTracker será nuevo.
+La Product Inventory API está en otro ordenador y no se ha revisado. El backend de BewerbungsTracker es independiente.
 
-## Hito de preparación del backend: avance y bloqueo
+## Secretos y configuración de desarrollo
 
-Esta sección actualiza el estado histórico descrito arriba.
-
-- Se revisaron `.gitignore`, `docs/plan.md` y este documento. Git ya está inicializado. No se creó ningún commit durante este hito.
-- Se creó `.venv/` en la raíz con Python 3.13.3; su intérprete funciona y está aislado del Python global.
-- `python -m venv .venv` falló en `ensurepip` por permisos al escribir en carpetas temporales. Se repitió usando temporales dentro de `.venv`, con el mismo resultado.
-- Se dejó disponible pip 25.0.1 extrayendo en `.venv/Lib/site-packages` el wheel de pip incluido en la instalación local de Python. Se verificó con `.venv/Scripts/python.exe -m pip list`. Usar `python -m pip`: no se generó el ejecutable `pip.exe` mediante ensurepip.
-- SQLite incluido en Python: 3.49.1, comprobado mediante `sqlite3.sqlite_version`.
-- Django y Django REST Framework **no están instalados**. El intento de descarga desde PyPI falló por un proxy inaccesible (`ProxyError`, WinError 10061). No se modificaron las políticas ni la configuración de red del equipo.
-
-### Compatibilidad verificada en fuentes oficiales
-
-- [Notas de Django 5.2](https://docs.djangoproject.com/en/5.2/releases/5.2/): Django 5.2 LTS admite Python 3.13.
-- [Versiones mantenidas de Django](https://www.djangoproject.com/download/): la serie 5.2 LTS recibe soporte extendido hasta abril de 2028. Se elige esta serie por su soporte prolongado.
-- [Requisitos de Django REST Framework](https://www.django-rest-framework.org/): incluye Django 5.2 y Python 3.13 entre las versiones compatibles.
-- Ambos proyectos recomiendan y solo dan soporte oficial al último parche de cada serie de Python. Python 3.13.3 pertenece a una serie compatible, pero no es el último parche; no se ha actualizado. La comprobación práctica de esta combinación queda pendiente hasta instalar las dependencias.
-
-### Pendiente por el bloqueo de descarga
-
-No se creó `backend/`, ni el proyecto `config`, ni la app `applications`. Tampoco se creó `backend/requirements.txt`: aún no hay versiones instaladas que fijar. No se ejecutaron migraciones ni `manage.py check`, ya que requieren Django.
-
-Cuando haya acceso a PyPI, desde la raíz en PowerShell, sin necesidad de activar el entorno:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install "Django>=5.2,<5.3" djangorestframework
-```
-
-Después se podrá generar el proyecto, registrar las apps, guardar las versiones exactas de todas las dependencias, aplicar las migraciones y ejecutar las comprobaciones. El modelo de candidatura y los endpoints quedan fuera de este hito.
-## Hito de preparaci?n del backend: completado
-
-La instalaci?n desde la terminal PowerShell del usuario funcion?. El bloqueo del proxy afectaba a los intentos anteriores del agente; las dependencias ya est?n instaladas y se han utilizado sin reinstalarlas.
-
-### Versiones verificadas en .venv
-
-- Python: 3.13.3.
-- Django: 5.2.18.
-- Django REST Framework: 3.18.3.
-- asgiref: 3.13.0.
-- sqlparse: 0.6.0.
-- tzdata: 2026.6.
-- SQLite incluido en Python: 3.49.1.
-
-`backend/requirements.txt` se gener? con `pip freeze` usando el Python de `.venv` e incluye las versiones exactas de las dependencias directas y transitivas.
-
-### Compatibilidad consultada
-
-- [Django 5.2 LTS](https://docs.djangoproject.com/en/5.2/releases/5.2/) admite Python 3.13.
-- [Django REST Framework](https://www.django-rest-framework.org/) admite Django 5.2 y Python 3.13.
-- Ambos proyectos recomiendan el ?ltimo parche de cada serie de Python. Se conserva Python 3.13.3 y se han verificado los imports, las migraciones y la configuraci?n localmente.
-
-### Estructura y configuraci?n
-
-- `.venv/`: entorno virtual aislado, excluido de Git.
-- `backend/manage.py`: ejecuta comandos de administraci?n del proyecto.
-- `backend/config/`: configuraci?n general del proyecto Django.
-- `backend/config/settings.py`: apps registradas, base de datos, idioma, zona horaria y dem?s ajustes.
-- `backend/config/urls.py`: rutas principales; conserva ?nicamente la ruta administrativa generada por Django. No se a?adieron endpoints de candidaturas.
-- `backend/applications/`: app preparada para la futura l?gica de candidaturas. No se cre? ning?n modelo de candidatura ni endpoints.
-- `backend/applications/migrations/`: guardar? los cambios del esquema de esa app; por ahora contiene ?nicamente `__init__.py`.
-- `backend/db.sqlite3`: base local creada por las migraciones, excluida de Git.
-
-Se registraron `rest_framework` y `applications.apps.ApplicationsConfig` en `INSTALLED_APPS`. Se usa SQLite, `TIME_ZONE = "Europe/Berlin"`, `USE_TZ = True` y `LANGUAGE_CODE = "de"`.
-
-### Clave y desarrollo local en PowerShell
-
-La clave generada por `startproject` se retir? del archivo antes de finalizar. `SECRET_KEY` se obtiene obligatoriamente de la variable de entorno `DJANGO_SECRET_KEY`, sin valor secreto ni clave de reserva en el c?digo.
-
-Desde la ra?z, ejecutar en cada nueva sesi?n de PowerShell antes de los comandos de Django:
+`SECRET_KEY` se lee de `DJANGO_SECRET_KEY`, sin clave de reserva en el código. La variable se prepara en cada sesión de PowerShell; no se cargan `.env` automáticamente:
 
 ```powershell
 $env:DJANGO_SECRET_KEY = & .\.venv\Scripts\python.exe -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-.\.venv\Scripts\python.exe backend/manage.py check
-.\.venv\Scripts\python.exe backend/manage.py runserver
 ```
 
-La asignaci?n guarda una clave aleatoria solo en el entorno de esa sesi?n; no se imprime ni se escribe en archivos. Cambiarla entre sesiones invalida las sesiones firmadas anteriores. Si falta la variable, Django falla al cargar la configuraci?n, de forma intencionada.
+La clave aleatoria queda en el entorno de esa sesión, sin escribirse en archivos. Cambiarla invalida sesiones firmadas anteriores. Sin la variable, Django falla al cargar la configuración de forma intencionada.
 
-No se necesita activar `.venv` ni cambiar la pol?tica de ejecuci?n de PowerShell. No se cargan archivos `.env` autom?ticamente. `DEBUG = True` y la configuraci?n actual son exclusivamente para desarrollo local, no para desplegar en producci?n.
+Las reglas de `.gitignore` excluyen dependencias, entornos virtuales, cachés, SQLite y `.env`/`.env.*`; permiten un futuro `.env.example` sin secretos. La comprobación del lockfile no encontró URLs de paquetes con usuario o contraseña incrustados. No había archivos versionados que coincidieran con las exclusiones actuales.
 
-### Comprobaciones ejecutadas
+## Incidencias anteriores resueltas y uso de PowerShell
 
-Con el Python de `.venv` y una clave temporal en el entorno:
+- PowerShell bloqueó `npm.ps1`; se usa `npm.cmd`/`npx.cmd` sin cambiar la política de ejecución.
+- La preparación inicial de pip encontró errores de permisos temporales; se dejó pip disponible en `.venv`. Posteriormente, el usuario instaló correctamente Django y DRF desde PowerShell.
+- La instalación npm del agente encontró `ENOTCACHED` y un proxy inaccesible (`ECONNREFUSED 127.0.0.1:9`). El usuario completó la instalación y confirmó el build y las pruebas. No es un bloqueo actual del MVP.
+- Se generó una referencia de Angular CLI 21 sin instalar dependencias ni crear Git en `.venv/angular-reference/`, excluida de Git. No es parte de la aplicación.
 
-```text
-python backend/manage.py migrate
-Operations to perform:
-  Apply all migrations: admin, auth, contenttypes, sessions
-Running migrations:
-  18 migraciones aplicadas; todas con resultado OK.
+Los comandos de instalación reproducible, arranque, demo y comprobaciones están en [development.md](development.md).
 
-python backend/manage.py check
-System check identified no issues (0 silenced).
+## Límites actuales
 
-python -m pip check
-No broken requirements found.
-```
+Demo local con datos ficticios. La API de candidaturas usa `AllowAny` y no requiere autenticación; Django Admin conserva su propio inicio de sesión. Antes de publicar hay que restringir la escritura, definir autenticación y autorización y preparar configuración de producción. `DEBUG = True` es solo para desarrollo. Historial, despliegue y rediseño del portfolio quedan fuera del MVP local.
 
-Git ya est? inicializado. No se a?adi? nada al staging ni se cre? ning?n commit: el usuario lo har? desde PowerShell. El modelo de candidatura y los endpoints quedan para el pr?ximo hito.
+Los commits los realiza el usuario desde PowerShell. No se creó ningún commit en este paso.

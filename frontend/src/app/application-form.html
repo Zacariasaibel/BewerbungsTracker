@@ -1,0 +1,26 @@
+<a class="back-link" [routerLink]="id() ? ['/bewerbungen', id()] : ['/bewerbungen']">← Zurück</a>
+<section class="page-heading"><div><p class="eyebrow">DER NÄCHSTE SCHRITT</p><h1>{{ id() ? 'Bewerbung bearbeiten' : 'Neue Bewerbung' }}</h1><p class="muted">Halten Sie Ihre Chance fest. Felder mit * sind erforderlich.</p></div></section>
+@if (loading()) {
+  <div class="panel state" role="status">Bewerbung wird geladen …</div>
+} @else if (missing()) {
+  <div class="panel state" role="alert"><h2>Bewerbung nicht gefunden</h2><p>Sie wurde möglicherweise bereits gelöscht.</p><a class="button primary" routerLink="/bewerbungen">Zu den Bewerbungen</a></div>
+} @else if (loadError()) {
+  <div class="panel state" role="alert"><h2>Laden nicht möglich</h2><p>{{ loadError() }}</p><button class="button primary" (click)="load()">Erneut versuchen</button></div>
+} @else {
+  <form class="panel application-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="panel-heading"><h2>Angaben zur Bewerbung</h2><span class="muted">{{ id() ? 'Bestehende Chance' : 'Eine neue Chance' }}</span></div>
+    @if (saveError()) { <div class="error-box" role="alert"><p>{{ saveError() }}</p>@if (serverErrors()['non_field_errors']) { <p>{{ serverErrors()['non_field_errors'] }}</p> }</div> }
+    <fieldset [disabled]="saving()"><legend class="sr-only">Bewerbungsdaten</legend><div class="form-grid">
+      @for (field of fields; track field.key) {
+        <div class="field"><label [for]="field.key">{{ field.label }}{{ field.required ? ' *' : '' }}</label>
+          <input [id]="field.key" [type]="field.type" [formControlName]="field.key" [attr.maxlength]="field.max" [placeholder]="field.placeholder" [attr.aria-required]="field.required" [attr.aria-invalid]="!!fieldError(field.key)" [attr.aria-describedby]="fieldError(field.key) ? field.key + '-error' : null">
+          @if (fieldError(field.key)) { <p class="field-error" [id]="field.key + '-error'">{{ fieldError(field.key) }}</p> }
+        </div>
+      }
+      <div class="field"><label for="status">Status *</label><select id="status" formControlName="status" [attr.aria-invalid]="!!fieldError('status')" aria-describedby="status-error">@for (entry of statuses; track entry[0]) { <option [value]="entry[0]">{{ entry[1] }}</option> }</select><p class="field-error" id="status-error">{{ fieldError('status') }}</p></div>
+      <div class="field full-width"><label for="notes">Notizen</label><textarea id="notes" formControlName="notes" rows="6" maxlength="10000" placeholder="Gesprächsnotizen, Ansprechpartner oder der nächste Schritt …" [attr.aria-invalid]="!!fieldError('notes')" aria-describedby="notes-error notes-hint"></textarea><div class="field-meta"><p class="field-error" id="notes-error">{{ fieldError('notes') }}</p><small id="notes-hint">{{ form.controls.notes.value.length }} / 10.000 Zeichen</small></div></div>
+    </div></fieldset>
+    <div class="form-actions"><a class="button secondary" [class.disabled-link]="saving()" [attr.aria-disabled]="saving()" [routerLink]="id() ? ['/bewerbungen', id()] : ['/bewerbungen']">Abbrechen</a><button class="button primary" type="submit" [disabled]="saving()">{{ saving() ? 'Wird gespeichert …' : 'Bewerbung speichern' }}</button></div>
+    @if (saving()) { <p role="status" class="muted">Ihre Bewerbung wird gespeichert. Bitte warten Sie.</p> }
+  </form>
+}
