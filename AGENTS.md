@@ -13,6 +13,7 @@
 - Escribir la interfaz y los mensajes visibles para el usuario en alemán.
 - Dar las explicaciones y escribir la documentación de aprendizaje en español sencillo, explicando qué se hace y por qué.
 - Escribir el README público en alemán.
+- Redactar el README y los demás textos públicos en un alemán natural, sencillo y profesional: frases cortas, explicaciones directas y términos técnicos solo cuando sean útiles. Evitar tono publicitario, exageraciones y relatos del proceso interno. Explicar qué hace el proyecto y cómo probarlo. Mantener la atribución detallada de las comprobaciones en `docs/test-checklist.md`.
 - Integrar la traducción de los comentarios y docstrings existentes que no estén en inglés en el siguiente bloque funcional, conservando la lógica.
 
 ## Forma de trabajo
